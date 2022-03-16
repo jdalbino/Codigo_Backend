@@ -1,6 +1,6 @@
 from flask import request
 from flask_restful import Resource
-
+from models.ingredientes import Ingrediente
 class IngredientesController(Resource):
     def get(self):
         return {
