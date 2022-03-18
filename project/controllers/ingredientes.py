@@ -1,16 +1,17 @@
 from ast import Pass
+from distutils.log import info
 from flask import request
 from flask_restful import Resource
 from marshmallow import ValidationError, post_dump
 from project.dtos.dto_prueba import ValidadorPrueba, validarUsuarioPrueba
-from project.ingrediente_dto import ingredienteRequestDTO, ingredienteResponseDTO
+from project.ingrediente_dto import ingredienteRequestDTO, IngredienteResponseDTO
 from project.models.ingredientes import Ingrediente
 from config import conexion
 class IngredientesController(Resource):
     def get(self):
         resultado = conexion.session.query(Ingrediente).all()
         print(resultado)
-        ingredientesSerializados = ingredienteResponseDTO().dump(resultado)
+        ingredientesSerializados = IngredienteResponseDTO(many=True).dump(resultado)
         return {
             'message':'Yo soy el get de los ingredientes',
             'content':ingredientesSerializados
@@ -33,7 +34,7 @@ class IngredientesController(Resource):
             conexion.session.add(nuevoIngrediente)
             conexion.session.commit()
 
-            ingredienteSerializado = ingredienteResponseDTO().dump(nuevoIngrediente)
+            ingredienteSerializado = IngredienteResponseDTO().dump(nuevoIngrediente)
 
             return {
                 'message':'Ingrediente creado exitosamente',
@@ -80,5 +81,46 @@ class PruebaController(Resource):
             'nacionalidad':'Peru',
             'password':'mimamamemima'
         }
-        resultado = validarUsuarioPrueba()
-        Pass
+        resultado = validarUsuarioPrueba().dump(usuario)
+        return {
+            'message':'el usuario es',
+            'content': usuario,
+            'resultado': resultado
+        }
+class IngredienteController(Resource):
+    def get(self,id):
+
+        ingrediente = conexion.session.query(Ingrediente).filter_by(id=id).first()
+        print(ingrediente)
+        if ingrediente:
+            ingrediente = IngredienteResponseDTO().dump(ingrediente)
+            return {
+            'id':id,
+            'result':ingrediente
+            }
+        else:
+            return {
+                'message':'El ingrediente a buscar no existe'
+            },404
+    def put(self,id):
+        ingrediente = conexion.session.query(Ingrediente).filter_by(id=id).first()
+        try:
+            if ingrediente:
+                body = request.get_json()
+                data_validada = ingredienteRequestDTO().load(body)
+                ingrediente.nombre = data_validada.get('nombre')
+                conexion.session.commit()
+                resultado = IngredienteResponseDTO().dump(ingrediente)
+                return {
+                    'message':'Ingrediente actualizado exitosamente',
+                    'content':{}
+                }
+            else:
+                return {
+                    'message':'Ingrediente a actualizar no existe'
+                },404
+        except Exception as e:
+            return {
+                'message':'informacion incorrecta',
+                'content':e.args
+            },400

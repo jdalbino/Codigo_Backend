@@ -10,3 +10,6 @@ class ingredienteRequestDTO(validador.SQLAlchemyAutoSchema):
 
     class Meta:
         model = Ingrediente
+class IngredienteResponseDTO(validador.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Ingrediente

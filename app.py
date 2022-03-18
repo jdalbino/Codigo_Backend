@@ -2,8 +2,11 @@ from crypt import methods
 from flask import Flask
 from datetime import datetime
 from flask_restful import Api
-from project.controllers.ingredientes import IngredientesController,PruebaController
+from project.controllers.ingredientes import ( IngredientesController,
+                                               PruebaController,
+                                               IngredienteController)
 from config import conexion,validador
+from project.controllers.recetas import RecetasController
 
 app= Flask(__name__)
 api = Api(app=app)
@@ -32,6 +35,8 @@ def inicio():
 
 api.add_resource(IngredientesController,'/ingredientes','/ingrediente')
 api.add_resource(PruebaController,'/pruebas')
+api.add_resource(IngredienteController,'/ingrediente/<int:id>')
+api.add_resource(RecetasController,'/recetas','/receta')
 
 if __name__ == '__main__':
     app.run(debug=True)
