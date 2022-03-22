@@ -6,7 +6,8 @@ from project.controllers.ingredientes import ( IngredientesController,
                                                PruebaController,
                                                IngredienteController)
 from config import conexion,validador
-from project.controllers.recetas import BuscarRecetaController, RecetasController
+from project.controllers.recetas import BuscarRecetaController, RecetasController,RecetaController
+from project.controllers.preparaciones import PreparacionesController
 
 app= Flask(__name__)
 api = Api(app=app)
@@ -38,6 +39,8 @@ api.add_resource(PruebaController,'/pruebas')
 api.add_resource(IngredienteController,'/ingrediente/<int:id>')
 api.add_resource(RecetasController,'/recetas','/receta')
 api.add_resource(BuscarRecetaController,'/buscar_receta')
+api.add_resource(PreparacionesController,'/preparacion')
+api.add_resource(RecetaController,'/receta/<int:id>')
 
 if __name__ == '__main__':
     app.run(debug=True)
