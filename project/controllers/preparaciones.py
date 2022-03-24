@@ -22,3 +22,11 @@ class PreparacionesController(Resource):
                 'message':'Hubo un error al crear la preparacion',
                 'content': e.args
             }
+    def get(self):
+        preparacion: Preparacion | None = conexion.session.query(Preparacion).filter_by(id=1).first()
+        print(preparacion)
+        print(preparacion.orden)
+        print(preparacion.recetas.nombre)
+        return {
+            "message":"ok"
+        }

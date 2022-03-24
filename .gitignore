@@ -2,3 +2,4 @@ entorno_prueba/
 entorno_flask/
 entorno310/
 __pycache__/
+.env

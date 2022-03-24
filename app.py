@@ -8,11 +8,18 @@ from project.controllers.ingredientes import ( IngredientesController,
 from config import conexion,validador
 from project.controllers.recetas import BuscarRecetaController, RecetasController,RecetaController
 from project.controllers.preparaciones import PreparacionesController
+from project.controllers.ingredientes_recetas import IngredientesRecetasController
+from dotenv import load_dotenv
+from os import environ
+
+load_dotenv()
+
+print(environ.get("NOMBRE"))
 
 app= Flask(__name__)
 api = Api(app=app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:juandiego1995@127.0.0.1:3306/recetario'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get("DATABASEURL")
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -41,6 +48,7 @@ api.add_resource(RecetasController,'/recetas','/receta')
 api.add_resource(BuscarRecetaController,'/buscar_receta')
 api.add_resource(PreparacionesController,'/preparacion')
 api.add_resource(RecetaController,'/receta/<int:id>')
+api.add_resource(IngredientesRecetasController,"/ingrediente_receta")
 
 if __name__ == '__main__':
     app.run(debug=True)
