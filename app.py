@@ -9,8 +9,10 @@ from dotenv import load_dotenv
 from flask_cors import CORS
 from flask_jwt import JWT,jwt_required,current_identity
 from models.usuarios import Usuario
+from seed import categoriasSeed
 from seguridad import autenticador,indentificador
 from dto.registro_dto import UsuarioResponseDTO
+from controllers.movimientos import MovimientoController
 
 load_dotenv()
 
@@ -33,6 +35,10 @@ conexion.init_app(app)
 
 conexion.create_all(app=app)
 
+@app.before_first_request
+def seed():
+    categoriasSeed()
+
 @app.route('/')
 def inicio():
     return render_template('inicio.html', nombre="Eduardo", dia="Jueves", integrantes=["Foca", "Lapagol", "Ruidiaz", "Paolin", "Rayo Advincula"], usuario={
@@ -53,6 +59,7 @@ def perfil_usuario():
 
 api.add_resource(RegistroController,"/registro")
 api.add_resource(LoginController,"/login")
+api.add_resource(MovimientoController,"/movimiento")
 
 if (__name__ == "__main__"):
     app.run(debug=True, port=8080)
