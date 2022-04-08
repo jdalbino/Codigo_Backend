@@ -1,7 +1,7 @@
-# from django.urls import path
-# from .views import inicio
+from django.urls import path
+from .views import inicio
 
-# urlpatters = [
-#     path('/inicio',inicio)
-# ]
+urlpatterns = [
+     path('inicio',inicio)
+ ]
 
