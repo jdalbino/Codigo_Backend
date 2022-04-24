@@ -11,6 +11,7 @@ class PruebaSerializer(serializers.Serializer):
     dni = serializers.RegexField(max_length=8,min_length=8,regex="[0-9]")
 
 class TareasSerializer(serializers.ModelSerializer):
+    foto = serializers.CharField(max_length=100)
     class Meta:
         model=Tareas
         fields='__all__'
@@ -44,4 +45,7 @@ class TareaPeronalizableSerializer(serializers.ModelSerializer):
         }
 class ArchivoSerializer(serializers.Serializer):
     
-    archivo=serializers.ImageField(max_length=100)
+    archivo=serializers.ImageField(max_length=100,use_url=True)
+
+class EliminarArchivoSerializer(serializers.Serializer):
+    archivo = serializers.CharField(max_length=100)

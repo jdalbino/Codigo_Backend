@@ -1,15 +1,18 @@
 import imp
+from os import remove
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.request import Request
-from rest_framework.generics import ListAPIView,ListCreateAPIView,RetrieveUpdateDestroyAPIView,CreateAPIView
-from .serializers import ArchivoSerializer, EtiquetaSerializer, PruebaSerializer,TareaSerializer,TareasSerializer
+from rest_framework.generics import ListAPIView,ListCreateAPIView,RetrieveUpdateDestroyAPIView,CreateAPIView,DestroyAPIView
+from .serializers import ArchivoSerializer, EtiquetaSerializer, PruebaSerializer,TareaSerializer,TareasSerializer,EliminarArchivoSerializer
 from .models import Etiqueta, Tareas
 from rest_framework import status
 from django .utils import timezone
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from os import remove
+from django.conf import settings
 
 @api_view(http_method_names=['GET','POST'])
 def inicio(request: Request):
@@ -88,15 +91,54 @@ class ArchivosApiView(CreateAPIView):
 
     def post(self,request:Request):
         print(request.FILES)
+
+        queryParams = request.query_params
+        carpetaDestino = queryParams.get("carpeta")
+
         data = self.serializer_class(data=request.FILES)
         if data.is_valid():
+            print(type(data.validated_data.get("archivo")))
             archivo:InMemoryUploadedFile = data.validated_data.get("archivo")
             print(archivo.name)
-            resultado = default_storage.save('imagenes/'+archivo.name,ContentFile(archivo.read()))
+            print(archivo.size)
+
+            if archivo.size > (5*1024*1024):
+                return Response(data={"message":""},status=status.HTTP_400_BAD_REQUEST)
+            
+            
+            resultado = default_storage.save(
+                
+               (carpetaDestino+'/' if carpetaDestino is not None else '') + archivo.name, ContentFile(archivo.read()))
+
             print(resultado)
-            return Response(data={"message":"archivo guardado exitosamente"},status=status.HTTP_201_CREATED)
+            return Response(data={
+                "message":"archivo guardado exitosamente",
+                "content":{
+                    "ubicacion":resultado
+                    }
+                },status=status.HTTP_201_CREATED)
         else:
             return Response(data={
                 "message":"Error al subir la imagen",
                 "content":data.errors
             },status=status.HTTP_400_BAD_REQUEST)
+
+class EliminarArchivoApiView(DestroyAPIView):
+    serializer_class = EliminarArchivoSerializer
+    
+    def delete(self,request:Request):
+        data = self.serializer_class(data=request.data)
+        try:
+            data.is_valid(raise_exception=True)
+            ubicacion = data.validated_data.get("archivo")
+            
+            remove(settings.MEDIA_ROOT / ubicacion)
+            return Response(data={
+                "message":"Archivo eliminado exitosamente",
+                })
+        except Exception as e:
+
+            return Response(data={
+                "message":"Error al eliminar el archivo",
+                "content":e.args
+            },status=status.HTTP_404_NOT_FOUND)
